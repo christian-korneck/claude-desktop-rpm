@@ -61,6 +61,8 @@ for cmd in 7z wget wrestool icotool convert npx rpm rpmbuild; do
             "rpmbuild")
                 DEPS_TO_INSTALL="$DEPS_TO_INSTALL rpmbuild"
                 ;;
+            "curl")
+                DEPS_TO_INSTALL="$DEPS_TO_INSTALL curl"
         esac
     fi
 done
@@ -114,7 +116,7 @@ fi
 # Download Claude Windows installer
 echo "📥 Downloading Claude Desktop installer..."
 CLAUDE_EXE="$WORK_DIR/Claude-Setup-x64.exe"
-if ! wget -O "$CLAUDE_EXE" "$CLAUDE_DOWNLOAD_URL"; then
+if ! curl -o "$CLAUDE_EXE" "$CLAUDE_DOWNLOAD_URL"; then
     echo "❌ Failed to download Claude Desktop installer"
     exit 1
 fi
