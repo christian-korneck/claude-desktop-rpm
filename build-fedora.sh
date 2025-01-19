@@ -41,7 +41,7 @@ for cmd in 7z wget wrestool icotool convert npx rpm rpmbuild; do
     if ! check_command "$cmd"; then
         case "$cmd" in
             "7z")
-                DEPS_TO_INSTALL="$DEPS_TO_INSTALL p7zip"
+                DEPS_TO_INSTALL="$DEPS_TO_INSTALL p7zip-plugins"
                 ;;
             "wget")
                 DEPS_TO_INSTALL="$DEPS_TO_INSTALL wget"
