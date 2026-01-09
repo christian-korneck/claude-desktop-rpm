@@ -264,6 +264,17 @@ sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' app.asar.conten
 echo "Patching Claude Code platform detection for Linux..."
 sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' app.asar.contents/.vite/build/index.js
 
+# Patch for Linux: Fix origin validation for local file:// URLs
+# The app validates IPC origins and requires isPackaged===true for file: protocol
+# Since we run via electron command, isPackaged is false, so we need to allow file: regardless
+echo "Patching origin validation for file:// URLs..."
+sed -i 's/e\.protocol==="file:"&&oe\.app\.isPackaged===!0/e.protocol==="file:"/g' app.asar.contents/.vite/build/index.js
+
+# Patch for Linux: Add stub handlers for ClaudeVM
+# These handlers are not registered on Linux but the renderer keeps calling them
+echo "Patching ClaudeVM handlers..."
+sed -i 's/t\.ipc\.handle("\$eipc_message\$_6a039d75-594a-4e0d-aad1-af47761a02ae_\$_claude\.web_\$_ClaudeCode_\$_getStatus"/t.ipc.handle("\$eipc_message\$_6a039d75-594a-4e0d-aad1-af47761a02ae_\$_claude.web_\$_ClaudeVM_\$_getDownloadStatus",async()=>null),t.ipc.handle("\$eipc_message\$_6a039d75-594a-4e0d-aad1-af47761a02ae_\$_claude.web_\$_ClaudeVM_\$_getRunningStatus",async()=>null),t.ipc.handle("\$eipc_message\$_6a039d75-594a-4e0d-aad1-af47761a02ae_\$_claude.web_\$_ClaudeCode_\$_getStatus"/g' app.asar.contents/.vite/build/index.js
+
 # Repackage app.asar
 npx asar pack app.asar.contents app.asar
 
