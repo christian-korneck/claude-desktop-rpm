@@ -259,6 +259,11 @@ echo "Patching for Linux window decorations..."
 sed -i 's/titleBarStyle:"hidden"/titleBarStyle:"default"/g' app.asar.contents/.vite/build/index.js
 sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' app.asar.contents/.vite/build/index.js
 
+# Patch for Linux: Fix Claude Code platform detection
+# The getPlatform() function only handles darwin and win32, but linux-arm64 binaries exist
+echo "Patching Claude Code platform detection for Linux..."
+sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' app.asar.contents/.vite/build/index.js
+
 # Repackage app.asar
 npx asar pack app.asar.contents app.asar
 
