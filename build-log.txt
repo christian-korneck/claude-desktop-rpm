@@ -1,182 +1,0 @@
-System Information:
-Distribution: Fedora Linux Asahi Remix 41 (Workstation Edition)
-Fedora version: Fedora Asahi Remix release 41 (Forty One)
-Checking dependencies...
-✓ 7z found
-✓ wget found
-✓ wrestool found
-✓ icotool found
-✓ convert found
-✓ npx found
-✓ rpm found
-✓ rpmbuild found
-✓ electron found
-📥 Downloading Claude Desktop installer...
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 2861k    0 2861k    0     0  2445k      0 --:--:--  0:00:01 --:--:-- 2445k100 5565k    0 5565k    0     0  2568k      0 --:--:--  0:00:02 --:--:-- 2568k100 9709k    0 9709k    0     0  3065k      0 --:--:--  0:00:03 --:--:-- 3065k100 14.7M    0 14.7M    0     0  3634k      0 --:--:--  0:00:04 --:--:-- 3634k100 21.9M    0 21.9M    0     0  4346k      0 --:--:--  0:00:05 --:--:-- 4535k100 29.8M    0 29.8M    0     0  4951k      0 --:--:--  0:00:06 --:--:-- 5538k100 32.1M    0 32.1M    0     0  4597k      0 --:--:--  0:00:07 --:--:-- 5477k100 34.2M    0 34.2M    0     0  4295k      0 --:--:--  0:00:08 --:--:-- 5074k100 38.4M    0 38.4M    0     0  4299k      0 --:--:--  0:00:09 --:--:-- 4854k100 43.9M    0 43.9M    0     0  4421k      0 --:--:--  0:00:10 --:--:-- 4499k100 48.0M    0 48.0M    0     0  4402k      0 --:--:--  0:00:11 --:--:-- 3724k100 53.7M    0 53.7M    0     0  4525k      0 --:--:--  0:00:12 --:--:-- 4421k100 60.1M    0 60.1M    0     0  4677k      0 --:--:--  0:00:13 --:--:-- 5301k100 66.5M    0 66.5M    0     0  4810k      0 --:--:--  0:00:14 --:--:-- 5747k100 72.9M    0 72.9M    0     0  4924k      0 --:--:--  0:00:15 --:--:-- 5948k100 79.4M    0 79.4M    0     0  5035k      0 --:--:--  0:00:16 --:--:-- 6447k100 85.3M    0 85.3M    0     0  5090k      0 --:--:--  0:00:17 --:--:-- 6463k100 91.8M    0 91.8M    0     0  5177k      0 --:--:--  0:00:18 --:--:-- 6495k100 98.4M    0 98.4M    0     0  5261k      0 --:--:--  0:00:19 --:--:-- 6537k100  106M    0  106M    0     0  5430k      0 --:--:--  0:00:20 --:--:-- 6963k100  111M    0  111M    0     0  5530k      0 --:--:--  0:00:20 --:--:-- 7319k
-✓ Download complete
-📦 Extracting resources...
-
-7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
-p7zip Version 16.02 (locale=en_US.UTF-8,Utf16=on,HugeFiles=on,64 bits,8 CPUs LE)
-
-Scanning the drive for archives:
-1 file, 116956776 bytes (112 MiB)
-
-Extracting archive: /home/max/git/claude-desktop-fedora/build/Claude-Setup-arm64.exe
---
-Path = /home/max/git/claude-desktop-fedora/build/Claude-Setup-arm64.exe
-Type = PE
-Physical Size = 116956776
-CPU = x86
-Characteristics = Executable 32-bit
-Created = 2020-09-27 18:20:07
-Headers Size = 1024
-Checksum = 117007555
-Image Size = 116961280
-Section Alignment = 4096
-File Alignment = 512
-Code Size = 119808
-Initialized Data Size = 116825600
-Uninitialized Data Size = 0
-Linker Version = 14.16
-OS Version = 6.0
-Image Version = 0.0
-Subsystem Version = 6.0
-Subsystem = Windows GUI
-DLL Characteristics = Relocated NX-Compatible TerminalServerAware
-Stack Reserve = 1048576
-Stack Commit = 4096
-Heap Reserve = 1048576
-Heap Commit = 4096
-Image Base = 4194304
-Comment = FileVersion: 0.7.9.0
-ProductVersion: 0.7.9.0
-----
-Path = .rsrc/DATA/131
-Size = 116667992
-Packed Size = 116667992
---
-Path = .rsrc/DATA/131
-Type = zip
-Physical Size = 116667992
-
-Everything is Ok
-
-Files: 5
-Size:       118084243
-Compressed: 116956776
-
-7-Zip [64] 16.02 : Copyright (c) 1999-2016 Igor Pavlov : 2016-05-21
-p7zip Version 16.02 (locale=en_US.UTF-8,Utf16=on,HugeFiles=on,64 bits,8 CPUs LE)
-
-Scanning the drive for archives:
-1 file, 116068405 bytes (111 MiB)
-
-Extracting archive: AnthropicClaude-0.7.9-full.nupkg
---
-Path = AnthropicClaude-0.7.9-full.nupkg
-Type = zip
-Physical Size = 116068405
-
-Everything is Ok
-
-Folders: 12
-Files: 86
-Size:       286935562
-Compressed: 116068405
-✓ Resources extracted
-🎨 Processing icons...
-✓ Icons processed
-Installing 16x16 icon...
-Installing 24x24 icon...
-Installing 32x32 icon...
-Installing 48x48 icon...
-Installing 64x64 icon...
-Installing 256x256 icon...
-Creating stub native module...
-📦 Building RPM package...
-setting SOURCE_DATE_EPOCH=1739404800
-Executing(%mkbuilddir): /bin/sh -e /var/tmp/rpm-tmp.XHUOq4
-+ umask 022
-+ cd /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ test -d /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ /usr/bin/rm -rf /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ /usr/bin/mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ /usr/bin/mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/SPECPARTS
-+ RPM_EC=0
-++ jobs -p
-+ exit 0
-Executing(%install): /bin/sh -e /var/tmp/rpm-tmp.24ftYz
-+ umask 022
-+ cd /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ '[' /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT '!=' / ']'
-+ rm -rf /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT
-++ dirname /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT
-+ mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ mkdir /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT
-+ CFLAGS='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -mbranch-protection=standard -fasynchronous-unwind-tables -fstack-clash-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer '
-+ export CFLAGS
-+ CXXFLAGS='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Werror=format-security -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -mbranch-protection=standard -fasynchronous-unwind-tables -fstack-clash-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer '
-+ export CXXFLAGS
-+ FFLAGS='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -mbranch-protection=standard -fasynchronous-unwind-tables -fstack-clash-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -I/usr/lib64/gfortran/modules '
-+ export FFLAGS
-+ FCFLAGS='-O2 -flto=auto -ffat-lto-objects -fexceptions -g -grecord-gcc-switches -pipe -Wall -Wp,-U_FORTIFY_SOURCE,-D_FORTIFY_SOURCE=3 -Wp,-D_GLIBCXX_ASSERTIONS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -fstack-protector-strong -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -mbranch-protection=standard -fasynchronous-unwind-tables -fstack-clash-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -I/usr/lib64/gfortran/modules '
-+ export FCFLAGS
-+ VALAFLAGS=-g
-+ export VALAFLAGS
-+ RUSTFLAGS='-Copt-level=3 -Cdebuginfo=2 -Ccodegen-units=1 -Cstrip=none -Cforce-frame-pointers=yes -Clink-arg=-specs=/usr/lib/rpm/redhat/redhat-package-notes --cap-lints=warn'
-+ export RUSTFLAGS
-+ LDFLAGS='-Wl,-z,relro -Wl,--as-needed  -Wl,-z,pack-relative-relocs -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1  -Wl,--build-id=sha1 -specs=/usr/lib/rpm/redhat/redhat-package-notes '
-+ export LDFLAGS
-+ LT_SYS_LIBRARY_PATH=/usr/lib64:
-+ export LT_SYS_LIBRARY_PATH
-+ CC=gcc
-+ export CC
-+ CXX=g++
-+ export CXX
-+ mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/lib64/claude-desktop
-+ mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/bin
-+ mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/share/applications
-+ mkdir -p /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/share/icons
-+ cp -r /home/max/git/claude-desktop-fedora/build/fedora-package/usr/lib/claude-desktop/app.asar /home/max/git/claude-desktop-fedora/build/fedora-package/usr/lib/claude-desktop/app.asar.unpacked /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/lib64/claude-desktop/
-+ cp -r /home/max/git/claude-desktop-fedora/build/fedora-package/usr/bin/claude-desktop /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/bin/
-+ cp -r /home/max/git/claude-desktop-fedora/build/fedora-package/usr/share/applications/claude-desktop.desktop /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/share/applications/
-+ cp -r /home/max/git/claude-desktop-fedora/build/fedora-package/usr/share/icons/hicolor /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT/usr/share/icons/
-+ /usr/lib/rpm/check-buildroot
-+ /usr/lib/rpm/redhat/brp-ldconfig
-+ /usr/lib/rpm/brp-compress
-+ /usr/lib/rpm/brp-strip /usr/bin/strip
-+ /usr/lib/rpm/brp-strip-comment-note /usr/bin/strip /usr/bin/objdump
-+ /usr/lib/rpm/redhat/brp-strip-lto /usr/bin/strip
-+ /usr/lib/rpm/brp-strip-static-archive /usr/bin/strip
-+ /usr/lib/rpm/check-rpaths
-+ /usr/lib/rpm/redhat/brp-mangle-shebangs
-mangling shebang in /usr/bin/claude-desktop from /bin/bash to #!/usr/bin/bash
-+ /usr/lib/rpm/brp-remove-la-files
-+ env /usr/lib/rpm/redhat/brp-python-bytecompile '' 1 0 -j8
-+ /usr/lib/rpm/redhat/brp-python-hardlink
-+ /usr/bin/add-determinism --brp -j8 /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT
-Scanned 24 directories and 11 files,
-               processed 0 inodes,
-               0 modified (0 replaced + 0 rewritten),
-               0 unsupported format, 0 errors
-Processing files: claude-desktop-0.7.9-1.fc41.aarch64
-Provides: application() application(claude-desktop.desktop) claude-desktop = 0.7.9-1.fc41 claude-desktop(aarch-64) = 0.7.9-1.fc41 mimehandler(x-scheme-handler/claude)
-Requires(interp): /bin/sh
-Requires(rpmlib): rpmlib(CompressedFileNames) <= 3.0.4-1 rpmlib(FileDigests) <= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) <= 4.0-1
-Requires(post): /bin/sh
-Requires: /usr/bin/bash
-Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build/BUILDROOT
-Wrote: /home/max/git/claude-desktop-fedora/build/electron-app/aarch64/claude-desktop-0.7.9-1.fc41.aarch64.rpm
-Executing(rmbuild): /bin/sh -e /var/tmp/rpm-tmp.iOkNXx
-+ umask 022
-+ cd /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ test -d /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ rm -rf /home/max/git/claude-desktop-fedora/build/BUILD/claude-desktop-0.7.9-build
-+ RPM_EC=0
-++ jobs -p
-+ exit 0
