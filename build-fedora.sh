@@ -2,7 +2,7 @@
 set -e
 
 # Update this URL when a new version of Claude Desktop is released
-CLAUDE_DOWNLOAD_URL="https://downloads.claude.ai/releases/win32/arm64/1.0.2768/Claude-21341c944a9d74880b52a77c4f1522f47f52d0da.exe"
+CLAUDE_DOWNLOAD_URL="https://downloads.claude.ai/releases/win32/arm64/1.0.3218/Claude-8679c9141fe246eb88af18130504c064d14b9004.exe"
 
 # Check for Fedora-based system
 if [ ! -f "/etc/fedora-release" ]; then
@@ -268,7 +268,7 @@ sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"dar
 # The app validates IPC origins and requires isPackaged===true for file: protocol
 # Since we run via electron command, isPackaged is false, so we need to allow file: regardless
 echo "Patching origin validation for file:// URLs..."
-sed -i 's/e\.protocol==="file:"&&oe\.app\.isPackaged===!0/e.protocol==="file:"/g' app.asar.contents/.vite/build/index.js
+sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' app.asar.contents/.vite/build/index.js
 
 # Patch for Linux: Add stub handlers for ClaudeVM
 # These handlers are not registered on Linux but the renderer keeps calling them

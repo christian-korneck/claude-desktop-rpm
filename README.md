@@ -1,10 +1,10 @@
-status: works on Fedora Asahi 42 arm64 (as of 1.0.2768 / Jan 2026). Claude Code and MCPs are working.
+status: works on Fedora Asahi 42 arm64 (as of 1.0.3218 / 14-Jan-2026). Claude Code and MCPs are working.
 
 Usage:
 
 ```
 sudo ./build-fedora.sh
-sudo dnf install ./claude-desktop-1.0.2768-1.fc42.aarch64.rpm
+sudo dnf install ./claude-desktop-1.0.3218-1.fc42.aarch64.rpm
 
 ```
 
