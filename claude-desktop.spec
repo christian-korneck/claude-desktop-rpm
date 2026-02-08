@@ -184,4 +184,5 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
-* update to Claude Desktop 1.1.2321
+* Sun Feb 08 2026 Claude Desktop Linux Maintainers - 1.1.2321-1
+- update to Claude Desktop 1.1.2321
