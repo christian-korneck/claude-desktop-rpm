@@ -3,6 +3,9 @@ build/
 build-*/
 *.rpm
 
+# Temp directory for analysis
+_tmp/
+
 # Reference implementation
 reference/
 

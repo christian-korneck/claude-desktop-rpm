@@ -1,5 +1,5 @@
-%global claude_version 1.1.2321
-%global claude_hash    495628f91fbfa276fabd6da835ba226fdf5ec68e
+%global claude_version 1.1.2685
+%global claude_hash    f39a622da544d39d746a0aba120ee29d06b1bd28
 %global electron_ver   39.5.0
 
 Name:           claude-desktop
@@ -74,6 +74,8 @@ const KeyboardKey = {
 Object.freeze(KeyboardKey);
 module.exports = {
   getWindowsVersion: () => "10.0.0",
+  getWindowsElevationType: () => "default",
+  getCurrentPackageFamilyName: () => "",
   setWindowEffect: () => {},
   removeWindowEffect: () => {},
   getIsMaximized: () => false,
@@ -84,6 +86,8 @@ module.exports = {
   clearProgressBar: () => {},
   setOverlayIcon: () => {},
   clearOverlayIcon: () => {},
+  readCfPrefValue: () => null,
+  readPlistValue: () => null,
   KeyboardKey
 };
 STUB
@@ -184,5 +188,8 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Thu Feb 12 2026 Claude Desktop Linux Maintainers - 1.1.2685-1
+- update to Claude Desktop 1.1.2685
+
 * Sun Feb 08 2026 Claude Desktop Linux Maintainers - 1.1.2321-1
 - update to Claude Desktop 1.1.2321
