@@ -1,6 +1,6 @@
-%global claude_version 1.1.2685
-%global claude_hash    f39a622da544d39d746a0aba120ee29d06b1bd28
-%global electron_ver   39.5.0
+%global claude_version 1.1.3189
+%global claude_hash    1b7b58b8b5060b7d5d19c6863d8f0caef4f0fc97
+%global electron_ver   40.4.1
 
 Name:           claude-desktop
 Version:        %{claude_version}
@@ -10,6 +10,7 @@ License:        Proprietary
 URL:            https://claude.com/download/
 
 Source0:        https://downloads.claude.ai/releases/win32/arm64/%{claude_version}/Claude-%{claude_hash}.exe
+Source1:        https://downloads.claude.ai/releases/darwin/universal/%{claude_version}/Claude-%{claude_hash}.dmg
 
 ExclusiveArch:  aarch64 x86_64
 AutoReqProv:    no
@@ -46,6 +47,12 @@ cp %{SOURCE0} Claude-installer.exe
 7z x -y Claude-installer.exe
 7z x -y AnthropicClaude-%{claude_version}-full.nupkg
 
+# --- extract claude-ssh binaries from macOS DMG ----------------------------
+# 7z returns exit code 2 on HFS+ "Headers Error" but extracts fine
+7z x -y %{SOURCE1} -o_macos_dmg || true
+test -f _macos_dmg/Claude/Claude.app/Contents/Resources/claude-ssh/version.txt
+cp -r _macos_dmg/Claude/Claude.app/Contents/Resources/claude-ssh .
+
 # --- extract icons ----------------------------------------------------------
 wrestool -x -t 14 lib/net45/claude.exe -o claude.ico
 icotool -x claude.ico
@@ -72,10 +79,18 @@ const KeyboardKey = {
   RightArrow: 262, DownArrow: 81, Delete: 79, Meta: 187
 };
 Object.freeze(KeyboardKey);
+class AuthRequest {
+  static isAvailable() { return false; }
+  start() { return Promise.reject(new Error("Not available")); }
+  cancel() {}
+}
 module.exports = {
   getWindowsVersion: () => "10.0.0",
   getWindowsElevationType: () => "default",
   getCurrentPackageFamilyName: () => "",
+  getActiveWindowHandle: () => null,
+  getAppInfoForFile: () => null,
+  focusWindow: () => {},
   setWindowEffect: () => {},
   removeWindowEffect: () => {},
   getIsMaximized: () => false,
@@ -88,6 +103,10 @@ module.exports = {
   clearOverlayIcon: () => {},
   readCfPrefValue: () => null,
   readPlistValue: () => null,
+  readRegistryValues: () => [],
+  writeRegistryValue: () => {},
+  enableWindowsOptionalFeature: () => Promise.resolve({ success: false }),
+  AuthRequest,
   KeyboardKey
 };
 STUB
@@ -141,6 +160,11 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
 
+# --- claude-ssh binaries (from macOS DMG, for SSH remote feature) -----------
+install -Dm755 %{_builddir}/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
+install -Dm755 %{_builddir}/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
+install -Dm644 %{_builddir}/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
+
 # --- launcher script --------------------------------------------------------
 mkdir -p %{buildroot}%{_bindir}
 cat > %{buildroot}%{_bindir}/claude-desktop << 'LAUNCHER'
@@ -188,6 +212,11 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Sun Feb 15 2026 Claude Desktop Linux Maintainers - 1.1.3189-1
+- update to Claude Desktop 1.1.3189
+- update Electron from 39.5.0 to 40.4.1
+- add claude-ssh binaries from macOS DMG for SSH remote feature
+
 * Thu Feb 12 2026 Claude Desktop Linux Maintainers - 1.1.2685-1
 - update to Claude Desktop 1.1.2685
 
