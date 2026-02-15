@@ -124,6 +124,9 @@ sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"dar
 # file:// origin validation
 sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
 
+# quit on window close when tray is disabled (upstream only checks win32)
+sed -i 's/if(Ci&&!mn("menuBarEnabled"))/if((Ci||process.platform==="linux")\&\&!mn("menuBarEnabled"))/' "$_idx"
+
 # repack
 asar pack app.asar.contents app.asar
 
