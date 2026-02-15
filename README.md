@@ -40,20 +40,24 @@ sudo dnf install mock rpmdevtools
 build the RPM:
 
 ```
-. /etc/os-release
-OS=$ID OS_VERSION=${VERSION_ID%%.*} ARCH=$(uname -m)
-
 spectool -g -R claude-desktop.spec
 
-mock -r $OS-$OS_VERSION-$ARCH --enable-network --spec claude-desktop.spec --sources ~/rpmbuild/SOURCES/
+mock --enable-network --spec claude-desktop.spec --sources "$(rpm --eval '%{_sourcedir}')"
 ```
 
 The `--enable-network` flag is required because `%prep` runs `npm install` to fetch electron and asar.
 
-The resulting RPM will be in `/var/lib/mock/$OS-$OS_VERSION-$ARCH/result/` and can get installed with:
+The resulting RPM will be in `/var/lib/mock/<os>-<os-version>-<arch>/result/` and can get installed with:
 
 ```
-sudo dnf install /var/lib/mock/$OS-$OS_VERSION-$ARCH/result/claude-desktop-*.rpm
+sudo dnf install "$(mock -p)/../result/claude-desktop-$(rpmspec -q --qf '%{VERSION}-%{RELEASE}' claude-desktop.spec).$(uname -m).rpm"
+```
+
+And optionally cleanup after building:
+
+```
+rpmbuild --rmsource claude-desktop.spec
+mock --clean
 ```
 
 ## Disclaimer
