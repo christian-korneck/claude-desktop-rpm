@@ -1,5 +1,5 @@
-%global claude_version 1.1.3189
-%global claude_hash    1b7b58b8b5060b7d5d19c6863d8f0caef4f0fc97
+%global claude_version 1.1.3770
+%global claude_hash    f7f5859a17386e383fad75f35ff6dd0f6e9dfd66
 %global electron_ver   40.4.1
 
 Name:           claude-desktop
@@ -10,7 +10,6 @@ License:        Proprietary
 URL:            https://claude.com/download/
 
 Source0:        https://downloads.claude.ai/releases/win32/arm64/%{claude_version}/Claude-%{claude_hash}.exe
-Source1:        https://downloads.claude.ai/releases/darwin/universal/%{claude_version}/Claude-%{claude_hash}.dmg
 
 ExclusiveArch:  aarch64 x86_64
 AutoReqProv:    no
@@ -46,12 +45,6 @@ cd %{_builddir}
 cp %{SOURCE0} Claude-installer.exe
 7z x -y Claude-installer.exe
 7z x -y AnthropicClaude-%{claude_version}-full.nupkg
-
-# --- extract claude-ssh binaries from macOS DMG ----------------------------
-# 7z returns exit code 2 on HFS+ "Headers Error" but extracts fine
-7z x -y %{SOURCE1} -o_macos_dmg || true
-test -f _macos_dmg/Claude/Claude.app/Contents/Resources/claude-ssh/version.txt
-cp -r _macos_dmg/Claude/Claude.app/Contents/Resources/claude-ssh .
 
 # --- extract icons ----------------------------------------------------------
 wrestool -x -t 14 lib/net45/claude.exe -o claude.ico
@@ -105,6 +98,8 @@ module.exports = {
   readPlistValue: () => null,
   readRegistryValues: () => [],
   writeRegistryValue: () => {},
+  writeRegistryDword: () => {},
+  closeOfficeDocument: () => {},
   enableWindowsOptionalFeature: () => Promise.resolve({ success: false }),
   AuthRequest,
   KeyboardKey
@@ -119,13 +114,13 @@ sed -i 's/titleBarStyle:"hidden"/titleBarStyle:"default"/g'      "$_idx"
 sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' "$_idx"
 
 # Linux platform detection for Claude Code
-sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' "$_idx"
+sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' "$_idx"
 
 # file:// origin validation
 sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
 
 # quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(Ci&&!mn("menuBarEnabled"))/if((Ci||process.platform==="linux")\&\&!mn("menuBarEnabled"))/' "$_idx"
+sed -i 's/if(Fn&&!mn("menuBarEnabled"))/if((Fn||process.platform==="linux")\&\&!mn("menuBarEnabled"))/' "$_idx"
 
 # repack
 asar pack app.asar.contents app.asar
@@ -163,10 +158,10 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
 
-# --- claude-ssh binaries (from macOS DMG, for SSH remote feature) -----------
-install -Dm755 %{_builddir}/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
-install -Dm755 %{_builddir}/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
-install -Dm644 %{_builddir}/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
+# --- claude-ssh binaries (for SSH remote feature) --------------------------
+install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
+install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
+install -Dm644 %{_builddir}/lib/net45/resources/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
 
 # --- launcher script --------------------------------------------------------
 mkdir -p %{buildroot}%{_bindir}
@@ -215,6 +210,10 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Fri Feb 20 2026 Claude Desktop Linux Maintainers - 1.1.3770-1
+- update to Claude Desktop 1.1.3770
+- claude-ssh binaries now included in Windows installer, macOS DMG no longer needed
+
 * Sun Feb 15 2026 Claude Desktop Linux Maintainers - 1.1.3189-1
 - update to Claude Desktop 1.1.3189
 - update Electron from 39.5.0 to 40.4.1
