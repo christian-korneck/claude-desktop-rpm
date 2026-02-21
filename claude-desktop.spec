@@ -1,5 +1,5 @@
-%global claude_version 1.1.3770
-%global claude_hash    f7f5859a17386e383fad75f35ff6dd0f6e9dfd66
+%global claude_version 1.1.3918
+%global claude_hash    a4b368d308b05c425b74c1c19ed47a572d3a90f6
 %global electron_ver   40.4.1
 
 Name:           claude-desktop
@@ -100,6 +100,11 @@ module.exports = {
   writeRegistryValue: () => {},
   writeRegistryDword: () => {},
   closeOfficeDocument: () => {},
+  focusOfficeDocument: () => false,
+  getWindowAbove: () => null,
+  isHardwareVirtEnabled: () => true,
+  isProcessRunning: () => Promise.resolve(false),
+  moveWindowBehind: () => {},
   enableWindowsOptionalFeature: () => Promise.resolve({ success: false }),
   AuthRequest,
   KeyboardKey
@@ -120,7 +125,7 @@ sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"dar
 sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
 
 # quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(Fn&&!mn("menuBarEnabled"))/if((Fn||process.platform==="linux")\&\&!mn("menuBarEnabled"))/' "$_idx"
+sed -i 's/if(Ln&&!Jr("menuBarEnabled"))/if((Ln||process.platform==="linux")\&\&!Jr("menuBarEnabled"))/' "$_idx"
 
 # repack
 asar pack app.asar.contents app.asar
@@ -210,6 +215,9 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Sat Feb 21 2026 Claude Desktop Linux Maintainers - 1.1.3918-1
+- update to Claude Desktop 1.1.3918
+
 * Fri Feb 20 2026 Claude Desktop Linux Maintainers - 1.1.3770-1
 - update to Claude Desktop 1.1.3770
 - claude-ssh binaries now included in Windows installer, macOS DMG no longer needed
