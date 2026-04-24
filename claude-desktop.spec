@@ -1,6 +1,17 @@
-%global claude_version 1.1.3918
-%global claude_hash    a4b368d308b05c425b74c1c19ed47a572d3a90f6
+%global claude_version 1.3883.0
 %global electron_ver   40.4.1
+
+# As of Claude >= 1.2.x the /win32/{x64,arm64}/<ver>/ClaudeSetup-*.exe files
+# became Squirrel *web-installer stubs* (~6 MB) that fetch the real package
+# at runtime and no longer contain AnthropicClaude-*-full.nupkg to extract.
+# The full .nupkg is still published at the channel root, so we source it
+# directly per-arch.
+%ifarch x86_64
+%global claude_winarch x64
+%endif
+%ifarch aarch64
+%global claude_winarch arm64
+%endif
 
 Name:           claude-desktop
 Version:        %{claude_version}
@@ -9,7 +20,7 @@ Summary:        Claude Desktop for Linux
 License:        Proprietary
 URL:            https://claude.com/download/
 
-Source0:        https://downloads.claude.ai/releases/win32/arm64/%{claude_version}/Claude-%{claude_hash}.exe
+Source0:        https://downloads.claude.ai/releases/win32/%{claude_winarch}/AnthropicClaude-%{claude_version}-full.nupkg
 
 ExclusiveArch:  aarch64 x86_64
 AutoReqProv:    no
@@ -42,8 +53,7 @@ export PATH="%{_builddir}/_tools/node_modules/.bin:$PATH"
 
 # --- extract installer -----------------------------------------------------
 cd %{_builddir}
-cp %{SOURCE0} Claude-installer.exe
-7z x -y Claude-installer.exe
+cp %{SOURCE0} AnthropicClaude-%{claude_version}-full.nupkg
 7z x -y AnthropicClaude-%{claude_version}-full.nupkg
 
 # --- extract icons ----------------------------------------------------------
@@ -163,10 +173,12 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
 
-# --- claude-ssh binaries (for SSH remote feature) --------------------------
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
-install -Dm644 %{_builddir}/lib/net45/resources/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
+# --- claude-ssh binaries (for SSH remote feature; dropped from recent builds)
+if [ -d %{_builddir}/lib/net45/resources/claude-ssh ]; then
+  install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64 2>/dev/null || :
+  install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64 2>/dev/null || :
+  install -Dm644 %{_builddir}/lib/net45/resources/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt            2>/dev/null || :
+fi
 
 # --- launcher script --------------------------------------------------------
 mkdir -p %{buildroot}%{_bindir}
@@ -215,6 +227,15 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Fri Apr 24 2026 Claude Desktop Linux Maintainers - 1.3883.0-1
+- update to Claude Desktop 1.3883.0
+- switch Source0 from Squirrel web-installer stub to the full .nupkg (the
+  win32/{x64,arm64}/<ver>/ClaudeSetup-*.exe became a ~6 MB web stub in
+  Claude 1.2.x+ and no longer contains the .nupkg to extract)
+- select nupkg per build arch via %%{claude_winarch} (x86_64 -> x64,
+  aarch64 -> arm64)
+- guard claude-ssh install block; the subtree is absent from recent builds
+
 * Sat Feb 21 2026 Claude Desktop Linux Maintainers - 1.1.3918-1
 - update to Claude Desktop 1.1.3918
 
