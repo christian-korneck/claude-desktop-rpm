@@ -158,6 +158,14 @@ sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="f
 # quit on window close when tray is disabled (upstream only checks win32)
 sed -i 's/if(ao&&!Ci("menuBarEnabled"))/if((ao||process.platform==="linux")\&\&!Ci("menuBarEnabled"))/' "$_idx"
 
+# disable the system tray entirely (the tray icon is unreliable across Linux DEs,
+# e.g. not clickable on KDE Plasma). Force the menuBarEnabled getter to read false so
+# no tray is ever created and the window-close handler above quits the app. Anchored on
+# the stable "menuBarEnabled" key (not the minified getter) so it survives version bumps;
+# the trailing ")" avoids matching the setter/listener which take a second argument.
+# Must run AFTER the quit-on-close patch (which matches the literal Ci("menuBarEnabled")).
+sed -i 's/[A-Za-z0-9_$]\+("menuBarEnabled")/!1/g' "$_idx"
+
 # repack
 # --unpack "*.node" keeps native addons (node-pty's pty.node, claude-native)
 # out of the archive and marked unpacked, so they load from app.asar.unpacked
@@ -267,6 +275,7 @@ update-desktop-database %{_datadir}/applications || :
 - drop bundled claude-ssh binaries (now downloaded at runtime by the app)
 - copy new ion-dist resource bundle into the app
 - build node-pty for Linux so Claude Code "run in terminal" works
+- disable the system tray on Linux (unreliable across desktops; app now quits on window close)
 
 * Sat Feb 21 2026 Claude Desktop Linux Maintainers - 1.1.3918-1
 - update to Claude Desktop 1.1.3918
