@@ -1,6 +1,7 @@
 %global claude_version 1.11187.4
 %global claude_hash    58400536f3ccde1cff9a129de6c3112dc8cb489a
 %global electron_ver   41.6.1
+%global nodepty_ver    1.1.0-beta34
 
 Name:           claude-desktop
 Version:        %{claude_version}
@@ -19,6 +20,10 @@ BuildRequires:  icoutils
 BuildRequires:  nodejs >= 22
 BuildRequires:  npm
 BuildRequires:  desktop-file-utils
+# toolchain to compile node-pty from source (Claude Code "run in terminal")
+BuildRequires:  gcc-c++
+BuildRequires:  make
+BuildRequires:  python3
 
 Requires:       gtk3
 Requires:       nss
@@ -39,6 +44,30 @@ mkdir -p %{_builddir}/_tools
 cd %{_builddir}/_tools
 npm install --no-save @electron/asar electron@%{electron_ver}
 export PATH="%{_builddir}/_tools/node_modules/.bin:$PATH"
+
+# --- build node-pty from source for Linux ----------------------------------
+# The Windows installer only ships Windows node-pty binaries, so Claude Code's
+# "run in terminal" can't load the module on Linux. Build the same version the
+# app bundles (in its own dir with a package.json, so npm doesn't prune the
+# electron/asar install above and electron-rebuild can resolve the module tree)
+# and rebuild it against the electron ABI we ship.
+mkdir -p %{_builddir}/_pty
+cd %{_builddir}/_pty
+cat > package.json << 'PKG'
+{
+  "name": "claude-desktop-pty-build",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "node-pty": "%{nodepty_ver}",
+    "@electron/rebuild": "^4"
+  }
+}
+PKG
+npm install
+%{_builddir}/_pty/node_modules/.bin/electron-rebuild --force \
+    --version %{electron_ver} --module-dir %{_builddir}/_pty --only node-pty
+cd %{_builddir}/_tools
 
 # --- extract installer -----------------------------------------------------
 cd %{_builddir}
@@ -130,7 +159,12 @@ sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="f
 sed -i 's/if(ao&&!Ci("menuBarEnabled"))/if((ao||process.platform==="linux")\&\&!Ci("menuBarEnabled"))/' "$_idx"
 
 # repack
-asar pack app.asar.contents app.asar
+# --unpack "*.node" keeps native addons (node-pty's pty.node, claude-native)
+# out of the archive and marked unpacked, so they load from app.asar.unpacked
+# on disk instead of being extracted to /tmp. Without this the Windows pty.node
+# extracted from the installer gets packed in and shadows the Linux build we
+# overlay in %install, breaking Claude Code's "run in terminal".
+asar pack app.asar.contents app.asar --unpack "*.node"
 
 # ---------------------------------------------------------------------------
 # %build — nothing to compile
@@ -164,6 +198,15 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
    "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/index.js
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
+
+# --- node-pty Linux binary (Claude Code "run in terminal") ------------------
+# Only pty.node is needed on Linux; spawn-helper is a macOS-only build target
+# and node-pty's native code uses forkpty() directly on Linux.
+_ptyrel="$_dest"/app.asar.unpacked/node_modules/node-pty/build/Release
+install -Dm755 %{_builddir}/_pty/node_modules/node-pty/build/Release/pty.node "$_ptyrel"/pty.node
+# drop the unusable Windows-only binaries shipped in the installer
+rm -f "$_ptyrel"/conpty.node "$_ptyrel"/conpty_console_list.node \
+      "$_ptyrel"/winpty-agent.exe "$_ptyrel"/winpty.dll
 
 # --- claude-ssh binaries ----------------------------------------------------
 # No longer bundled: as of 1.11187.4 the Windows installer ships no claude-ssh
@@ -223,6 +266,7 @@ update-desktop-database %{_datadir}/applications || :
 - update Electron from 40.4.1 to 41.6.1
 - drop bundled claude-ssh binaries (now downloaded at runtime by the app)
 - copy new ion-dist resource bundle into the app
+- build node-pty for Linux so Claude Code "run in terminal" works
 
 * Sat Feb 21 2026 Claude Desktop Linux Maintainers - 1.1.3918-1
 - update to Claude Desktop 1.1.3918
