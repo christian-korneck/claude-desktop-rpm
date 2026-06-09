@@ -1,6 +1,6 @@
-%global claude_version 1.1.3918
-%global claude_hash    a4b368d308b05c425b74c1c19ed47a572d3a90f6
-%global electron_ver   40.4.1
+%global claude_version 1.11187.4
+%global claude_hash    58400536f3ccde1cff9a129de6c3112dc8cb489a
+%global electron_ver   41.6.1
 
 Name:           claude-desktop
 Version:        %{claude_version}
@@ -61,6 +61,8 @@ cp lib/net45/resources/*.json app.asar.contents/resources/i18n/
 cp -r lib/net45/resources/fonts app.asar.contents/resources/ 2>/dev/null || :
 cp lib/net45/resources/*.png   app.asar.contents/resources/ 2>/dev/null || :
 cp lib/net45/resources/*.clod  app.asar.contents/resources/ 2>/dev/null || :
+# ion-dist renderer bundle (served via custom protocol from the resources dir)
+cp -r lib/net45/resources/ion-dist app.asar.contents/resources/ 2>/dev/null || :
 
 # native module stub
 mkdir -p app.asar.contents/node_modules/@ant/claude-native
@@ -125,7 +127,7 @@ sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"dar
 sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
 
 # quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(Ln&&!Jr("menuBarEnabled"))/if((Ln||process.platform==="linux")\&\&!Jr("menuBarEnabled"))/' "$_idx"
+sed -i 's/if(ao&&!Ci("menuBarEnabled"))/if((ao||process.platform==="linux")\&\&!Ci("menuBarEnabled"))/' "$_idx"
 
 # repack
 asar pack app.asar.contents app.asar
@@ -163,10 +165,11 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
 
-# --- claude-ssh binaries (for SSH remote feature) --------------------------
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-arm64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-arm64
-install -Dm755 %{_builddir}/lib/net45/resources/claude-ssh/claude-ssh-linux-amd64 "$_dest"/electron/resources/claude-ssh/claude-ssh-linux-amd64
-install -Dm644 %{_builddir}/lib/net45/resources/claude-ssh/version.txt            "$_dest"/electron/resources/claude-ssh/version.txt
+# --- claude-ssh binaries ----------------------------------------------------
+# No longer bundled: as of 1.11187.4 the Windows installer ships no claude-ssh
+# directory. The app fetches the platform binary at runtime from
+# https://downloads.claude.ai/claude-ssh-releases (claude-ssh.zst), so the SSH
+# remote feature self-bootstraps and nothing needs to be installed here.
 
 # --- launcher script --------------------------------------------------------
 mkdir -p %{buildroot}%{_bindir}
@@ -215,6 +218,12 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Tue Jun 09 2026 Claude Desktop Linux Maintainers - 1.11187.4-1
+- update to Claude Desktop 1.11187.4
+- update Electron from 40.4.1 to 41.6.1
+- drop bundled claude-ssh binaries (now downloaded at runtime by the app)
+- copy new ion-dist resource bundle into the app
+
 * Sat Feb 21 2026 Claude Desktop Linux Maintainers - 1.1.3918-1
 - update to Claude Desktop 1.1.3918
 
