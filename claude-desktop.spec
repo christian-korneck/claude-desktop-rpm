@@ -1,5 +1,5 @@
-%global claude_version 1.11187.4
-%global claude_hash    58400536f3ccde1cff9a129de6c3112dc8cb489a
+%global claude_version 1.11847.5
+%global claude_hash    9692f0b44ffa0158a501a91309e361c0d48ed8e4
 %global electron_ver   41.6.1
 %global nodepty_ver    1.1.0-beta34
 
@@ -156,7 +156,7 @@ sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"dar
 sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
 
 # quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(ao&&!Ci("menuBarEnabled"))/if((ao||process.platform==="linux")\&\&!Ci("menuBarEnabled"))/' "$_idx"
+sed -i 's/if(Eo&&!ci("menuBarEnabled"))/if((Eo||process.platform==="linux")\&\&!ci("menuBarEnabled"))/' "$_idx"
 
 # disable the system tray entirely (the tray icon is unreliable across Linux DEs,
 # e.g. not clickable on KDE Plasma). Force the menuBarEnabled getter to read false so
@@ -269,6 +269,9 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Tue Jun 10 2026 Claude Desktop Linux Maintainers - 1.11847.5-1
+- update to Claude Desktop 1.11847.5
+
 * Tue Jun 09 2026 Claude Desktop Linux Maintainers - 1.11187.4-1
 - update to Claude Desktop 1.11187.4
 - update Electron from 40.4.1 to 41.6.1
