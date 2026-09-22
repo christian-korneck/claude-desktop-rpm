@@ -1,7 +1,6 @@
-%global claude_version 1.11847.5
-%global claude_hash    9692f0b44ffa0158a501a91309e361c0d48ed8e4
-%global electron_ver   41.6.1
-%global nodepty_ver    1.1.0-beta34
+%global claude_version 2.2553.1
+%global electron_ver   44.2.0
+%global nodepty_ver    1.2.0-beta.14
 
 Name:           claude-desktop
 Version:        %{claude_version}
@@ -10,7 +9,10 @@ Summary:        Claude Desktop for Linux
 License:        Proprietary
 URL:            https://claude.com/download/
 
-Source0:        https://downloads.claude.ai/releases/win32/arm64/%{claude_version}/Claude-%{claude_hash}.exe
+# Squirrel package straight from the release feed
+# (https://downloads.claude.ai/releases/win32/arm64/RELEASES lists the current one),
+# so no per-release installer hash is needed any more.
+Source0:        https://downloads.claude.ai/releases/win32/arm64/AnthropicClaude-%{claude_version}-full.nupkg
 
 ExclusiveArch:  aarch64 x86_64
 AutoReqProv:    no
@@ -43,6 +45,11 @@ Claude Desktop for Linux.
 mkdir -p %{_builddir}/_tools
 cd %{_builddir}/_tools
 npm install --no-save @electron/asar electron@%{electron_ver}
+# electron 42 removed the "postinstall": "node install.js" entry from its
+# package.json, so npm no longer fetches the runtime and node_modules/electron/dist
+# is never created. install.js is still shipped, so run it ourselves.
+( cd node_modules/electron && node install.js )
+test -d node_modules/electron/dist
 export PATH="%{_builddir}/_tools/node_modules/.bin:$PATH"
 
 # --- build node-pty from source for Linux ----------------------------------
@@ -69,11 +76,9 @@ npm install
     --version %{electron_ver} --module-dir %{_builddir}/_pty --only node-pty
 cd %{_builddir}/_tools
 
-# --- extract installer -----------------------------------------------------
+# --- extract package -------------------------------------------------------
 cd %{_builddir}
-cp %{SOURCE0} Claude-installer.exe
-7z x -y Claude-installer.exe
-7z x -y AnthropicClaude-%{claude_version}-full.nupkg
+7z x -y %{SOURCE0}
 
 # --- extract icons ----------------------------------------------------------
 wrestool -x -t 14 lib/net45/claude.exe -o claude.ico
@@ -142,21 +147,25 @@ module.exports = {
 };
 STUB
 
-# --- sed patches on index.js -----------------------------------------------
-_idx=app.asar.contents/.vite/build/index.js
+# --- sed patches on the main-process bundle --------------------------------
+# As of 2.x the main process is split into index.pre.js plus a few hundred
+# index.chunk-*.js files, so the patches below are applied across every JS file
+# in .vite/build rather than to a single index.js.
+_idx=$(find app.asar.contents/.vite/build -name '*.js')
 
 # native window decorations
-sed -i 's/titleBarStyle:"hidden"/titleBarStyle:"default"/g'      "$_idx"
-sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' "$_idx"
+sed -i 's/titleBarStyle:"hidden"/titleBarStyle:"default"/g'      $_idx
+sed -i 's/titleBarStyle:"hiddenInset"/titleBarStyle:"default"/g' $_idx
 
 # Linux platform detection for Claude Code
-sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' "$_idx"
+sed -i 's/if(process\.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process\.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";throw new Error/if(process.platform==="darwin")return e==="arm64"?"darwin-arm64":"darwin-x64";if(process.platform==="win32")return e==="arm64"?"win32-arm64":"win32-x64";if(process.platform==="linux")return e==="arm64"?"linux-arm64":"linux-x64";throw new Error/g' $_idx
 
 # file:// origin validation
-sed -i 's/e\.protocol==="file:"&&[a-zA-Z]*\.app\.isPackaged===!0/e.protocol==="file:"/g' "$_idx"
+# (the minified receiver names change between releases, so match them loosely)
+sed -i -E 's/([A-Za-z0-9_$]+)\.protocol==="file:"&&[A-Za-z0-9_$]+\.app\.isPackaged===!0/\1.protocol==="file:"/g' $_idx
 
-# quit on window close when tray is disabled (upstream only checks win32)
-sed -i 's/if(Eo&&!ci("menuBarEnabled"))/if((Eo||process.platform==="linux")\&\&!ci("menuBarEnabled"))/' "$_idx"
+# (the win32-only guard on the quit-on-close path is gone as of 2.x; the
+# menuBarEnabled patch below is enough to make the app quit on window close)
 
 # disable the system tray entirely (the tray icon is unreliable across Linux DEs,
 # e.g. not clickable on KDE Plasma). Force the menuBarEnabled getter to read false so
@@ -164,7 +173,7 @@ sed -i 's/if(Eo&&!ci("menuBarEnabled"))/if((Eo||process.platform==="linux")\&\&!
 # the stable "menuBarEnabled" key (not the minified getter) so it survives version bumps;
 # the trailing ")" avoids matching the setter/listener which take a second argument.
 # Must run AFTER the quit-on-close patch (which matches the literal Ci("menuBarEnabled")).
-sed -i 's/[A-Za-z0-9_$]\+("menuBarEnabled")/!1/g' "$_idx"
+sed -i 's/[A-Za-z0-9_$]\+("menuBarEnabled")/!1/g' $_idx
 
 # repack
 # --unpack "*.node" keeps native addons (node-pty's pty.node, claude-native)
@@ -172,6 +181,18 @@ sed -i 's/[A-Za-z0-9_$]\+("menuBarEnabled")/!1/g' "$_idx"
 # on disk instead of being extracted to /tmp. Without this the Windows pty.node
 # extracted from the installer gets packed in and shadows the Linux build we
 # overlay in %install, breaking Claude Code's "run in terminal".
+# --- Linux node-pty binary --------------------------------------------------
+# The Windows package only ships prebuilds/win32-arm64, so drop those and put the
+# Linux build where node-pty's loader looks first (../build/Release). It goes into
+# the asar contents so that --unpack below registers it in the archive header and
+# writes it out to app.asar.unpacked; a file missing from the header cannot be
+# required from inside the asar at all.
+rm -rf app.asar.contents/node_modules/node-pty/prebuilds \
+       app.asar.unpacked/node_modules/node-pty/prebuilds
+mkdir -p app.asar.contents/node_modules/node-pty/build/Release
+cp %{_builddir}/_pty/node_modules/node-pty/build/Release/pty.node \
+   app.asar.contents/node_modules/node-pty/build/Release/pty.node
+
 asar pack app.asar.contents app.asar --unpack "*.node"
 
 # ---------------------------------------------------------------------------
@@ -207,14 +228,8 @@ cp %{_builddir}/app.asar.contents/node_modules/@ant/claude-native/index.js \
 # remove Windows .node binary
 rm -f "$_dest"/app.asar.unpacked/node_modules/@ant/claude-native/claude-native-binding.node
 
-# --- node-pty Linux binary (Claude Code "run in terminal") ------------------
-# Only pty.node is needed on Linux; spawn-helper is a macOS-only build target
-# and node-pty's native code uses forkpty() directly on Linux.
-_ptyrel="$_dest"/app.asar.unpacked/node_modules/node-pty/build/Release
-install -Dm755 %{_builddir}/_pty/node_modules/node-pty/build/Release/pty.node "$_ptyrel"/pty.node
-# drop the unusable Windows-only binaries shipped in the installer
-rm -f "$_ptyrel"/conpty.node "$_ptyrel"/conpty_console_list.node \
-      "$_ptyrel"/winpty-agent.exe "$_ptyrel"/winpty.dll
+# node-pty's Linux binary is placed during %prep so that it is registered in the
+# asar header and unpacked next to the archive.
 
 # --- claude-ssh binaries ----------------------------------------------------
 # No longer bundled: as of 1.11187.4 the Windows installer ships no claude-ssh
@@ -269,6 +284,14 @@ touch -h %{_datadir}/icons/hicolor >/dev/null 2>&1 || :
 update-desktop-database %{_datadir}/applications || :
 
 %changelog
+* Tue Sep 22 2026 Claude Desktop Linux Maintainers - 2.2553.1-1
+- update to Claude Desktop 2.2553.1
+- update Electron from 41.6.1 to 44.2.0, node-pty to 1.2.0-beta.14
+- source the Squirrel nupkg from the release feed instead of the hashed installer exe
+- apply the main-process patches across the new split index.chunk-*.js bundle
+- fetch the electron runtime explicitly (electron 42 dropped its postinstall hook)
+- ship the Linux pty.node inside the asar header so it can be required
+
 * Tue Jun 10 2026 Claude Desktop Linux Maintainers - 1.11847.5-1
 - update to Claude Desktop 1.11847.5
 
