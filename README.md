@@ -11,7 +11,7 @@ I aim to update this repo at least once per month for new Claude Desktop version
 prereqs for building:
 
 ```
-sudo dnf install rpmdevtools p7zip-plugins icoutils nodejs npm desktop-file-utils
+sudo dnf install rpmdevtools p7zip-plugins icoutils nodejs npm desktop-file-utils gcc-c++ make python3
 ```
 
 build the RPM:
